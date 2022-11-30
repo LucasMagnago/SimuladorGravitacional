@@ -1,0 +1,57 @@
+﻿@model List<SimuladorGravitacional.Models.Corpo>
+
+@{
+    ViewData["Title"] = "Home Page";
+
+    int ciclos = 0;
+
+    if((bool)ViewData["Start"] == true)
+    {
+        ciclos = (int)ViewData["nCiclos"];
+    }
+}
+
+<script type="text/javascript">
+    let a = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model))
+
+    //a = JSON.parse(a)
+
+    //var obj = JSON.parse(document.getElementById('appdata').dataset.);
+    //var obj = document.getElementById('appdata').data('data-obj');
+
+    function writeConsole()
+    {
+        console.log(a);
+    }
+
+    setTimeout(writeConsole, 5000);
+</script>
+
+<div>
+    @*<div class="error" style=@(ViewData["hasError"] is not null ? "display:block" : "display:none")>@ViewData["ErrorMessage"]</div>*@
+
+    @*<div class="screen" runat="server" id="simScreen">
+        @if((bool)ViewData["Start"] == true)
+        {
+            for(int i = 0; i < ciclos; i++)
+            {
+                for(int j = 0; j < (Model.Count() / ciclos); j++)
+                {
+                    double posX = (double)Model.ElementAt(j + (i * 50)).getPosicaoX() % 720;
+                    double posY = (double)Model.ElementAt(j + (i * 50)).getPosicaoY() % 400;
+
+                    string posXpx = ((int)posX).ToString() + "px";
+                    string posYpx = ((int)posY).ToString() + "px";
+
+                    <div class="corpo" style="left: @(posXpx); bottom: @(posYpx)"></div>
+                    
+                }
+            }
+        }
+    </div>*@
+    <div id="appdata" data-obj="@Newtonsoft.Json.JsonConvert.SerializeObject(Model)"></div>
+    <div class="painel">
+        <input type="button" class="btn" value="Start" name="Start" onclick="location.href='@Url.Action("Start", "Home")'"/>
+        <input type="button" class="btn" value="Reset" name="Reset" onclick="location.href='@Url.Action("Reset", "Home")'"/>
+    </div>
+</div>
