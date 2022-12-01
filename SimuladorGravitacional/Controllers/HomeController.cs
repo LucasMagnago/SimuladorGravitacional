@@ -23,8 +23,7 @@ namespace SimuladorGravitacional.Controllers
 
         public IActionResult Index()
         {
-            ViewData["Start"] = false;
-            return View();
+            return Reset();
         }
 
         public IActionResult Start()
@@ -266,6 +265,7 @@ namespace SimuladorGravitacional.Controllers
                 sw.Write(sb.ToString());
                 sw.Close();
 
+                ViewData["nElementos"] = quantidadeCorpos;
                 ViewData["nCiclos"] = interacoes;
                 ViewData["Start"] = true;
                 return View("Index", listAux);
@@ -293,8 +293,8 @@ namespace SimuladorGravitacional.Controllers
 
         public IActionResult Reset()
         {
-            ViewData["ErrorMessage"] = "Testando a mensagem de erro.";
-            ViewData["hasError"] = true;
+            ViewData["nElementos"] = 0;
+            ViewData["nCiclos"] = 0;
             ViewData["Start"] = false;
             return View("Index");
         }

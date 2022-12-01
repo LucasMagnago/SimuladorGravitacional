@@ -11,47 +11,104 @@
     }
 }
 
+<script src="~/lib/jquery/dist/jquery.js" type="text/javascript"></script>
 <script type="text/javascript">
-    let a = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model))
 
-    //a = JSON.parse(a)
+    async function checkStart(){
+        console.log("check start")
+        var dv = $('#appdata')
+        var dvScreen = document.getElementById('simScreen')
 
-    //var obj = JSON.parse(document.getElementById('appdata').dataset.);
-    //var obj = document.getElementById('appdata').data('data-obj');
+        var cl = $('#appdata').data('ciclos');
+        var nelementos = $('#appdata').data('nelementos');
+        var data = $('#appdata').data('obj');
+        data = JSON.stringify(data)
+        data = JSON.parse(data)
 
-    function writeConsole()
-    {
-        console.log(a);
+        for(var i = 0; i < cl; i++){
+            if(data != "vazio"){
+            console.log("if data has value")
+            console.log(cl) //1000
+            console.log(nelementos) //50
+
+            //setTimeout(() => showElements(cl, nelementos, data, dvScreen), 1000)
+            //setTimeout(() => cleanScreen(dvScreen), 5000)
+
+            await showElements(i, nelementos, data, dvScreen)
+            await resolveAfter2Seconds()
+            await cleanScreen(dvScreen)
+            }  
+        }
     }
 
-    setTimeout(writeConsole, 5000);
+    function showElements(iteracao, nelementos, data, dvScreen){
+        console.log("show elements")
+
+        for(var i = (nelementos * iteracao); i < (nelementos + (nelementos * iteracao)); i++){
+            console.log(nelementos * iteracao)
+            let posX = parseFloat(data[i].PosicaoX) % 720;
+            let posY = parseFloat(data[i].PosicaoY) % 400;
+
+            let element = document.createElement("div")
+            //element.innerHTML = "-"
+            element.classList.add("corpo")
+            element.style.left = String(posX + "px")
+            element.style.bottom = String(posY + "px")
+
+            dvScreen.appendChild(element)
+
+            console.log(element)
+            console.log(dvScreen)
+        }
+    }
+
+    function cleanScreen(dvScreen){
+        console.log("cleaning screen")
+        dvScreen.innerHTML = ""
+    }
+
+    function resolveAfter2Seconds() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve('resolved');
+        }, 10);
+      });
+    }
+
+    function startLoading(){
+        var dvMain = document.getElementById('dvMain')
+        var dvLoad = document.getElementById('dvLoad')
+
+        dvMain.style.display = "none";
+        dvLoad.style.display = "flex";
+    }
+
+    function endLoading(){
+        var ready = $('#appdata').data('start');
+
+        while(ready == "nao"){
+            ready = $('#appdata').data('start');
+        }
+
+        dvMain.style.display = "block";
+        dvLoad.style.display = "none";
+    }
 </script>
 
-<div>
+<div id="dvMain">
     @*<div class="error" style=@(ViewData["hasError"] is not null ? "display:block" : "display:none")>@ViewData["ErrorMessage"]</div>*@
 
-    @*<div class="screen" runat="server" id="simScreen">
-        @if((bool)ViewData["Start"] == true)
-        {
-            for(int i = 0; i < ciclos; i++)
-            {
-                for(int j = 0; j < (Model.Count() / ciclos); j++)
-                {
-                    double posX = (double)Model.ElementAt(j + (i * 50)).getPosicaoX() % 720;
-                    double posY = (double)Model.ElementAt(j + (i * 50)).getPosicaoY() % 400;
+    <div class="screen" runat="server" id="simScreen"></div>
 
-                    string posXpx = ((int)posX).ToString() + "px";
-                    string posYpx = ((int)posY).ToString() + "px";
+    <div id="appdata" data-start="@((bool)ViewData["Start"] == true ? "sim" : "nao")" data-obj="@((bool)ViewData["Start"] == true ? Newtonsoft.Json.JsonConvert.SerializeObject(Model) : "vazio")" data-ciclos="@((bool)ViewData["Start"] == true ? (int)ViewData["nCiclos"] : 0)" data-nelementos="@((bool)ViewData["Start"] == true ? (int)ViewData["nElementos"] : 0)"></div>
 
-                    <div class="corpo" style="left: @(posXpx); bottom: @(posYpx)"></div>
-                    
-                }
-            }
-        }
-    </div>*@
-    <div id="appdata" data-obj="@Newtonsoft.Json.JsonConvert.SerializeObject(Model)"></div>
     <div class="painel">
-        <input type="button" class="btn" value="Start" name="Start" onclick="location.href='@Url.Action("Start", "Home")'"/>
-        <input type="button" class="btn" value="Reset" name="Reset" onclick="location.href='@Url.Action("Reset", "Home")'"/>
+        <input type="button" class="btn" value="Calcular" name="Calcular" style="@((bool)ViewData["Start"] == false ? "display: block" : "display: none")" onclick="startLoading(); location.href='@Url.Action("Start", "Home")'; endLoading()"/>
+        <input type="button" class="btn" value="Start" name="Start" style="@((bool)ViewData["Start"] == true ? "display: block" : "display: none")" onclick="checkStart()"/>
+        <input type="button" class="btn" value="Reset" name="Reset" style="@((bool)ViewData["Start"] == true ? "display: block" : "display: none")" onclick="location.href='@Url.Action("Reset", "Home")'" /> 
     </div>
+</div>
+
+<div id="dvLoad" style="width: 100%; height: 70vh; display: none; justify-content: center; align-items: center">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </div>
