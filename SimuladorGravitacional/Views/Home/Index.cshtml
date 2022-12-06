@@ -11,8 +11,63 @@
     }
 }
 
+
+<div id="appdata" data-start="@((bool)ViewData["Start"] == true ? "sim" : "nao")" data-obj="@((bool)ViewData["Start"] == true ? Newtonsoft.Json.JsonConvert.SerializeObject(Model) : "vazio")" data-ciclos="@((bool)ViewData["Start"] == true ? (int)ViewData["nCiclos"] : 0)" data-nelementos="@((bool)ViewData["Start"] == true ? (int)ViewData["nElementos"] : 0)"></div>
+
+<div id="dvMain">
+    @*<div class="error" style=@(ViewData["hasError"] is not null ? "display:block" : "display:none")>@ViewData["ErrorMessage"]</div>*@
+
+    <div class="screen" runat="server" id="simScreen"></div>
+
+    <div class="painel">
+        <input type="button" id="calc-btn" class="btn" value="Calcular" name="Calcular" onclick="startLoading(); location.href='@Url.Action("Start", "Home")';endLoading();"/>
+        <input type="button" id="start-btn" class="btn" value="Start" name="Start" onclick="checkStart()"/>
+        <input type="button" id="reset-btn" class="btn" value="Reset" name="Reset" onclick="location.href='@Url.Action("Reset", "Home")'" /> 
+    </div>
+</div>
+
+<div id="dvLoad" style="width: 100%; height: 70vh; visibility: hidden; justify-content: center; align-items: center">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+
+<!--JAVASCRIPT-->
 <script src="~/lib/jquery/dist/jquery.js" type="text/javascript"></script>
+<script src="~/lib/jquery/dist/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript">
+    let dvMain;
+    let dvLoad;
+    let ready;
+    let calcBtn;
+    let startBtn;
+    let resetBtn;
+
+    window.onload = function() {
+        dvMain = document.getElementById("dvMain")
+        dvLoad = document.getElementById("dvLoad")
+        ready = $('#appdata').data("start");
+        calcBtn = document.getElementById("calc-btn")
+        startBtn = document.getElementById("start-btn")
+        resetBtn = document.getElementById("reset-btn")
+        checkVisibility();
+    }
+
+    function checkVisibility(){
+        console.log(ready)
+        console.log(calcBtn)
+        console.log(startBtn) 
+        console.log(resetBtn)
+
+        if(ready == "nao"){
+            calcBtn.style.display = "block"
+            startBtn.style.display = "none"
+            resetBtn.style.display = "none"
+        }
+        else{
+            calcBtn.style.display = "none"
+            startBtn.style.display = "block"
+            resetBtn.style.display = "block"
+        }
+    }
 
     async function checkStart(){
         console.log("check start")
@@ -68,47 +123,48 @@
     }
 
     function resolveAfter2Seconds() {
-      return new Promise(resolve => {
+        return new Promise(resolve => {
         setTimeout(() => {
-          resolve('resolved');
+            resolve('resolved');
         }, 10);
-      });
+        });
     }
 
     function startLoading(){
-        var dvMain = document.getElementById('dvMain')
-        var dvLoad = document.getElementById('dvLoad')
+        //console.log($('#dvMain'))
+        //console.log($('#dvLoad'))
+        //$('#dvMain').css('visibility', 'hidden')
+        //$('#dvLoad').css('visibility', 'visible')
+        dvMain = document.getElementById('dvMain')
+        dvLoad = document.getElementById('dvLoad')
 
-        dvMain.style.display = "none";
-        dvLoad.style.display = "flex";
+        console.log(dvMain)
+        console.log(dvLoad)
+
+        dvMain.style.display = 'none'
+        dvLoad.style.display = 'flex'
+        dvLoad.style.visibility = 'visible'
+
+        console.log(dvMain)
+        console.log(dvLoad)
     }
 
     function endLoading(){
-        var ready = $('#appdata').data('start');
+        dvMain = document.getElementById('dvMain')
+        dvLoad = document.getElementById('dvLoad')
+
+        ready = $('#appdata').data('start');
 
         while(ready == "nao"){
             ready = $('#appdata').data('start');
         }
 
-        dvMain.style.display = "block";
-        dvLoad.style.display = "none";
+        dvMain.style.display = 'block'
+        dvLoad.style.visibility = 'hidden' 
+
+        console.log(dvMain)
+        console.log(dvLoad)
     }
 </script>
 
-<div id="dvMain">
-    @*<div class="error" style=@(ViewData["hasError"] is not null ? "display:block" : "display:none")>@ViewData["ErrorMessage"]</div>*@
 
-    <div class="screen" runat="server" id="simScreen"></div>
-
-    <div id="appdata" data-start="@((bool)ViewData["Start"] == true ? "sim" : "nao")" data-obj="@((bool)ViewData["Start"] == true ? Newtonsoft.Json.JsonConvert.SerializeObject(Model) : "vazio")" data-ciclos="@((bool)ViewData["Start"] == true ? (int)ViewData["nCiclos"] : 0)" data-nelementos="@((bool)ViewData["Start"] == true ? (int)ViewData["nElementos"] : 0)"></div>
-
-    <div class="painel">
-        <input type="button" class="btn" value="Calcular" name="Calcular" style="@((bool)ViewData["Start"] == false ? "display: block" : "display: none")" onclick="startLoading(); location.href='@Url.Action("Start", "Home")'; endLoading()"/>
-        <input type="button" class="btn" value="Start" name="Start" style="@((bool)ViewData["Start"] == true ? "display: block" : "display: none")" onclick="checkStart()"/>
-        <input type="button" class="btn" value="Reset" name="Reset" style="@((bool)ViewData["Start"] == true ? "display: block" : "display: none")" onclick="location.href='@Url.Action("Reset", "Home")'" /> 
-    </div>
-</div>
-
-<div id="dvLoad" style="width: 100%; height: 70vh; display: none; justify-content: center; align-items: center">
-    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-</div>
